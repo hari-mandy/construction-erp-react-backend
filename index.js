@@ -39,12 +39,19 @@ app.get("/users", (req, res) => {
 
 //post detais to the user table.
 app.post("/users", (req, res) => {
-    const postQuery = "INSERT INTO users (name, username, email, password) VALUES (?)";
+    const postQuery = "INSERT INTO users (profile_img, name, email, dateofbirth, permanent_address, postal_code, username, password, present_address, city, country) VALUES (?)";
     const values = [
+        req.body.profile_img,
         req.body.name,
-        req.body.username,
         req.body.email,
-        req.body.password
+        req.body.dateofbirth,
+        req.body.permanent_address,
+        req.body.postal_code,
+        req.body.username,
+        req.body.password,
+        req.body.present_address,
+        req.body.city,
+        req.body.country,
     ]
 
     connection.query(postQuery, [values], (err, data) => {
