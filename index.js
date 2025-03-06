@@ -64,3 +64,22 @@ app.post("/users", (req, res) => {
         }
     });
 });
+
+app.get("/check-username", (req, res) => {
+    const username = req.query.username; // Get username from query parameters
+
+    if (!username) {
+        return res.status(400).json({ error: "Username is required" });
+    }
+
+    const query = "SELECT COUNT(*) AS count FROM users WHERE username = ?";
+
+    connection.query(query, [username], (err, results) => {
+        if (err) {
+            return res.send(err);
+        }
+
+        const isUnique = results[0].count === 0; // If count is 0, username is unique
+        return res.json({ isUnique });
+    });
+});
