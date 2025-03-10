@@ -65,6 +65,27 @@ app.post("/users", (req, res) => {
     });
 });
 
+//post detais to the user table.
+app.post("/register", (req, res) => {
+    const postQuery = "INSERT INTO users (name, email, username, password ) VALUES (?)";
+    const values = [
+        req.body.name,
+        req.body.email,
+        req.body.username,
+        req.body.password,
+    ]
+
+    connection.query(postQuery, [values], (err, data) => {
+        if(err) {
+            return res.send(err);
+        } else {
+            return res.json({
+                data
+            });
+        }
+    });
+});
+
 app.get("/check-username", (req, res) => {
     const username = req.query.username; // Get username from query parameters
 
