@@ -84,6 +84,25 @@ app.get("/check-username", (req, res) => {
     });
 });
 
+app.get("/check-email", (req, res) => {
+    const email = req.query.email; // Get username from query parameters
+
+    if (!email) {
+        return res.status(400).json({ error: "Email ID is required" });
+    }
+
+    const query = "SELECT COUNT(*) AS count FROM users WHERE email = ?";
+
+    connection.query(query, [email], (err, results) => {
+        if (err) {
+            return res.send(err);
+        }
+
+        const isUnique = results[0].count === 0; // If count is 0, username is unique
+        return res.json({ isUnique });
+    });
+});
+
 app.get("/get-user", (req, res) => {
     const email = req.query.email;
     if (!email) {
