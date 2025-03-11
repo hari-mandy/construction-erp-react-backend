@@ -1,6 +1,11 @@
 import express, { query } from "express";
 import mysql from "mysql";
 import cors from "cors";
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+import { v4 as uuidv4 } from 'uuid';
+
+dotenv.config();
 
 const app = express();
  app.listen(3001,() => {
@@ -138,5 +143,68 @@ app.get("/get-user", (req, res) => {
             return res.status(404).json({ error: "User not found" });
         }
         return res.json(result);
+    });
+});
+
+const sendResetMail = (user, res) => {
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+        },
+    });
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: "Reset Password",
+        html: `
+            <h1>Reset Your Password</h1>
+            <p>Click on the following link to reset your password:</p>
+            <a href="${process.env.REACT_APP_BASE_URL_frontend}reset-password/${user.token}">Reset Password</a>
+            <p>The link will expire in 10 minutes.</p>
+            <p>If you didn't request a password reset, please ignore this email.</p>
+        `,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+            return res.status(500).json({ message: "Failed to send email", error: err.message });
+        }
+        return res.status(200).json({ message: "Reset link sent successfully", info });
+    });
+};
+
+const updateReset = (user, res) => {
+    const query = "INSERT INTO reset_tokens (user_id, token) VALUES (?, ?)";
+    const values = [user.id, user.token];
+
+    connection.query(query, values, (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error", details: err.message });
+        }
+        sendResetMail(user, res); // Now passes `res`
+    });
+};
+
+
+app.get("/forgetPassword", (req, res) => {
+    const email = req.query.email;
+    if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+    }
+
+    const userQuery = "SELECT email, id FROM users WHERE email = ?";
+    connection.query(userQuery, [email], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error", details: err.message });
+        }
+        if (result.length === 0) {
+            return res.status(404).json({ error: "Email is not registered!" });
+        }
+        const token = uuidv4();
+        const user = { email: result[0].email, id: result[0].id, token };
+        updateReset(user, res); // Pass `res` to handle response properly
     });
 });
