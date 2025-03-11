@@ -162,7 +162,7 @@ const sendResetMail = (user, res) => {
         html: `
             <h1>Reset Your Password</h1>
             <p>Click on the following link to reset your password:</p>
-            <a href="${process.env.REACT_APP_BASE_URL_frontend}reset-password/${user.token}">Reset Password</a>
+            <a href="${process.env.REACT_APP_BASE_URL_frontend}reset-password/?token=${user.token}">Reset Password</a>
             <p>The link will expire in 10 minutes.</p>
             <p>If you didn't request a password reset, please ignore this email.</p>
         `,
@@ -208,3 +208,4 @@ app.get("/forgetPassword", (req, res) => {
         updateReset(user, res); // Pass `res` to handle response properly
     });
 });
+
