@@ -1,4 +1,19 @@
 const connection = require('../config/database');
+const sendResetMail = require('../Utils/password-reset-mail');
+const { v4: uuidv4 } = require('uuid');
+
+
+const updateReset = (user, res) => {
+    const query = "INSERT INTO reset_tokens (user_id, token) VALUES (?, ?)";
+    const values = [user.id, user.token];
+
+    connection.query(query, values, (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error", details: err.message });
+        }
+        sendResetMail(user, res); // Now passes `res`
+    });
+};
 
 const userControlles = {
     //Query to register new user & update in db.
@@ -44,6 +59,44 @@ const userControlles = {
     
             const isUnique = results[0].count === 0; // If count is 0, the value is unique
             return res.json({ isUnique });
+        });
+    },
+
+    //Query to check the user existance in db.
+    getUser:  (req, res) => {
+        const email = req.query.email;
+        if (!email) {
+            return res.status(400).json({ error: "Email is required" });
+        }
+        const query = "SELECT * FROM users WHERE email = ?";
+        connection.query(query, [email], (err, result) => {
+            if (err) {
+                return res.status(500).json({ error: "Database error", details: err.message });
+            }
+            if (result.length === 0) {
+                return res.status(404).json({ error: "User not found" });
+            }
+            return res.json(result);
+        });
+    },
+
+    forgetPassword: (req, res) => {
+        const email = req.query.email;
+        if (!email) {
+            return res.status(400).json({ error: "Email is required" });
+        }
+
+        const userQuery = "SELECT email, id FROM users WHERE email = ?";
+        connection.query(userQuery, [email], (err, result) => {
+            if (err) {
+                return res.status(500).json({ error: "Database error", details: err.message });
+            }
+            if (result.length === 0) {
+                return res.status(404).json({ error: "Email is not registered!" });
+            }
+            const token = uuidv4();
+            const user = { email: result[0].email, id: result[0].id, token };
+            updateReset(user, res); // Pass `res` to handle response properly
         });
     },
 }

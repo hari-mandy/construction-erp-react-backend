@@ -5,9 +5,7 @@ const db = require('./config/database');
 const env = require('dotenv').config();
 
 const port = process.env.BACKEND_PORT;
-// import nodemailer from "nodemailer";
 // import dotenv from "dotenv";
-// import { v4 as uuidv4 } from 'uuid';
 
 // dotenv.config();
 const app = express(); // Initialize Express app
@@ -19,23 +17,6 @@ app.use('/', router);  // Ensure this line is present
  app.listen(port,() => {
     console.log("beckend is connected!");
  });
-
-// app.get("/get-user", (req, res) => {
-//     const email = req.query.email;
-//     if (!email) {
-//         return res.status(400).json({ error: "Email is required" });
-//     }
-//     const query = "SELECT * FROM users WHERE email = ?";
-//     connection.query(query, [email], (err, result) => {
-//         if (err) {
-//             return res.status(500).json({ error: "Database error", details: err.message });
-//         }
-//         if (result.length === 0) {
-//             return res.status(404).json({ error: "User not found" });
-//         }
-//         return res.json(result);
-//     });
-// });
 
 // const sendResetMail = (user, res) => {
 //     const transporter = nodemailer.createTransport({
