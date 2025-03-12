@@ -16,7 +16,7 @@ const sendResetMail = (user, res) => {
         subject: "Reset Dummie ERP Password",
         html: `
             <h1>Reset Your Password</h1>
-            <p>Click on the following link to reset your password:</p>
+            <p style=margin-bottom:25px>Click on the following link to reset your password:</p>
             <a href="${process.env.REACT_APP_BASE_URL_frontend}reset-password/?token=${user.token}" style="padding:12px;background-color:#0B249A;color:#ffffff;text-decoration:none;border-radius:5px">Reset Password</a>
             <p style=margin-top:25px>The link is for one time use.</p>
             <p>If you didn't request a password reset, please ignore this email.</p>

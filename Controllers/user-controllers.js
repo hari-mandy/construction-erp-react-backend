@@ -2,7 +2,7 @@ const connection = require('../config/database');
 const sendResetMail = require('../Utils/password-reset-mail');
 const { v4: uuidv4 } = require('uuid');
 
-
+//Function to update the reset token table with user id and unique token.
 const updateReset = (user, res) => {
     const query = "INSERT INTO reset_tokens (user_id, token) VALUES (?, ?)";
     const values = [user.id, user.token];
@@ -12,6 +12,26 @@ const updateReset = (user, res) => {
             return res.status(500).json({ error: "Database error", details: err.message });
         }
         sendResetMail(user, res); // Now passes `res`
+    });
+};
+
+//Function to update the new password in the users table.
+const updatePassword = async (id, password, res) => {
+    const query = "UPDATE users SET password = ? WHERE id = ?"; // Correct query
+    const values = [password, id];
+
+    connection.query(query, values, (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error", details: err.message });
+        }
+        const removeToken = "DELETE FROM reset_tokens WHERE user_id = ?";
+            connection.query(removeToken, id, (err, result) => {
+                if (err) {
+                    return res.status(500).json({ error: "Failed to remove reset token", details: err.message });
+                }
+                return res.json({ message: "Password reset successful" });
+            });
+
     });
 };
 
@@ -80,6 +100,7 @@ const userControlles = {
         });
     },
 
+    //Query to Get email and send verfication mail with specific token.
     forgetPassword: (req, res) => {
         const email = req.query.email;
         if (!email) {
@@ -99,6 +120,27 @@ const userControlles = {
             updateReset(user, res); // Pass `res` to handle response properly
         });
     },
+
+    //Query to validate the token in the reset_token table.
+    resetpassword: (req, res) => {
+        const { token, password } = req.body;
+
+        if (!token || !password) {
+            return res.status(400).json({ error: "Token and password are required" });
+        }
+
+        const getUserIdQuery = "SELECT * FROM reset_tokens WHERE token = (?)";
+        connection.query(getUserIdQuery, token, (err, result) => {
+            if (err) {
+                return res.status(500).json({ error: "Database error", details: err.message });
+            }
+            if (!result.length) {
+                return res.status(400).json({ error: "Invalid or expired token" });
+            }
+            updatePassword(result[0].user_id, password, res);
+        });
+    }
+
 }
 
 module.exports = userControlles;

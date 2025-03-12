@@ -4,6 +4,7 @@ const userControllers = require('../controllers/user-controllers'); // Fix varia
 const router = express.Router();
 
 router.post('/register', userControllers.register);
+router.post('/resetpassword', userControllers.resetpassword);
 router.get('/checkunique', userControllers.checkUnique);
 router.get('/get-user', userControllers.getUser);
 router.get('/forgetpassword', userControllers.forgetPassword);
