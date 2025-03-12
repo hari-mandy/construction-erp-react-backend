@@ -1,115 +1,24 @@
-// import express, { query } from "express";
-// import cors from "cors";
+const express = require('express');
+const cors = require('cors');
+const router = require('./Routes/user-routes');
 const db = require('./config/database');
+const env = require('dotenv').config();
+
+const port = process.env.BACKEND_PORT;
 // import nodemailer from "nodemailer";
 // import dotenv from "dotenv";
 // import { v4 as uuidv4 } from 'uuid';
 
 // dotenv.config();
+const app = express(); // Initialize Express app
 
-//  app.use(express.json());
-//  app.use(cors());
+app.use(express.json());
+app.use(cors());
+app.use('/', router);  // Ensure this line is present
 
-// //get details from user table.
-// app.get("/users", (req, res) => {
-//     const getQuery = "SELECT * FROM users";
-//     connection.query(getQuery, (err, data) => {
-//         if(err) {
-//             return res.send(err);
-//         } else {
-//             return res.json({
-//                 data
-//             });
-//         }
-//     });
-// });
-
-// //post detais to the user table.
-// app.post("/users", (req, res) => {
-//     const postQuery = "INSERT INTO users (profile_img, name, email, dateofbirth, permanent_address, postal_code, username, password, present_address, city, country) VALUES (?)";
-//     const values = [
-//         req.body.profile_img,
-//         req.body.name,
-//         req.body.email,
-//         req.body.dateofbirth,
-//         req.body.permanent_address,
-//         req.body.postal_code,
-//         req.body.username,
-//         req.body.password,
-//         req.body.present_address,
-//         req.body.city,
-//         req.body.country,
-//     ]
-
-//     connection.query(postQuery, [values], (err, data) => {
-//         if(err) {
-//             return res.send(err);
-//         } else {
-//             return res.json({
-//                 data
-//             });
-//         }
-//     });
-// });
-
-// //post detais to the user table.
-// app.post("/register", (req, res) => {
-//     const postQuery = "INSERT INTO users (name, email, username, password ) VALUES (?)";
-//     const values = [
-//         req.body.name,
-//         req.body.email,
-//         req.body.username,
-//         req.body.password,
-//     ]
-
-//     connection.query(postQuery, [values], (err, data) => {
-//         if(err) {
-//             return res.send(err);
-//         } else {
-//             return res.json({
-//                 data
-//             });
-//         }
-//     });
-// });
-
-// app.get("/check-username", (req, res) => {
-//     const username = req.query.username; // Get username from query parameters
-
-//     if (!username) {
-//         return res.status(400).json({ error: "Username is required" });
-//     }
-
-//     const query = "SELECT COUNT(*) AS count FROM users WHERE username = ?";
-
-//     connection.query(query, [username], (err, results) => {
-//         if (err) {
-//             return res.send(err);
-//         }
-
-//         const isUnique = results[0].count === 0; // If count is 0, username is unique
-//         return res.json({ isUnique });
-//     });
-// });
-
-// app.get("/check-email", (req, res) => {
-//     const email = req.query.email; // Get username from query parameters
-
-//     if (!email) {
-//         return res.status(400).json({ error: "Email ID is required" });
-//     }
-
-//     const query = "SELECT COUNT(*) AS count FROM users WHERE email = ?";
-
-//     connection.query(query, [email], (err, results) => {
-//         if (err) {
-//             return res.send(err);
-//         }
-
-//         const isUnique = results[0].count === 0; // If count is 0, username is unique
-//         return res.json({ isUnique });
-//     });
-// });
+ app.listen(port,() => {
+    console.log("beckend is connected!");
+ });
 
 // app.get("/get-user", (req, res) => {
 //     const email = req.query.email;
