@@ -139,8 +139,20 @@ const userControlles = {
             }
             updatePassword(result[0].user_id, password, res);
         });
-    }
+    },
 
+    //Valid token or not ?
+    validToken: (req, res) => {
+        const token = req.query.token;
+        const query = "SELECT COUNT(*) AS count FROM reset_tokens WHERE token = ?";
+        connection.query(query, [token], (err, results) => {
+            if (err) {
+                return res.status(500).json({ error: "Database error", details: err.message });
+            }
+            const isValid = results[0].count !== 0; // If count is 0, the value is unique
+            return res.json({ isValid });
+        });
+    }
 }
 
 module.exports = userControlles;
