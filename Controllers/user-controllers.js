@@ -152,6 +152,35 @@ const userControlles = {
             const isValid = results[0].count !== 0; // If count is 0, the value is unique
             return res.json({ isValid });
         });
+    },
+
+    updateuser: (req, res) => {
+        const values = [
+            req.body.profile_img,
+            req.body.name,
+            req.body.email,
+            req.body.dateofbirth,
+            req.body.permanent_address,
+            req.body.postal_code,
+            req.body.username,
+            req.body.present_address,
+            req.body.city,
+            req.body.country,
+            req.body.id // ID should be at the end
+        ];
+    
+        const postQuery = `UPDATE users SET profile_img = ?, name = ?, email = ?, dateofbirth = ?, permanent_address = ?, postal_code = ?, username = ?,  present_address = ?, city = ?, country = ? WHERE id = ?`;
+    
+        connection.query(postQuery, values, (err, result) => {
+            if (err) {
+                console.error("Error updating user:", err);
+                return res.status(500).json({ error: "Failed to update user" });
+            }
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ error: "User not found" });
+            }
+            res.status(200).json({ message: "User updated successfully" });
+        });
     }
 }
 
