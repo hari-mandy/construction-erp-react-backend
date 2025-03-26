@@ -100,6 +100,16 @@ const userControlles = {
         });
     },
 
+    getalluser: (req, res) => {
+        const query = "SELECT name, email, postal_code, city, username, country FROM users";
+        connection.query(query, (err, result) => {
+            if (err) {
+                return res.status(500).json({ error: "Database error", details: err.message });
+            }
+            return res.json(result);
+        })
+    },
+
     //Query to Get email and send verfication mail with specific token.
     forgetPassword: (req, res) => {
         const email = req.query.email;
