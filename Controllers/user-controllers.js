@@ -101,7 +101,36 @@ const userControlles = {
     },
 
     getalluser: (req, res) => {
-        const query = "SELECT name, email, postal_code, city, username, country FROM users";
+        const like = req.query.like;
+        const query = "SELECT name, email, postal_code, city, username, country FROM users WHERE name LIKE ? OR email LIKE ?";
+        const likePattern = `%${like}%`; 
+        connection.query(query, [likePattern, likePattern], (err, result) => {
+            if (err) {
+                return res.status(500).json({ error: "Database error", details: err.message });
+            }
+            return res.json(result);
+        });
+    },
+
+    getusercity: (req, res) => {
+        const like = req.query.like;
+        let query = '';
+        if (!like) {
+            query = "SELECT name, email, postal_code, city, username, country FROM users";
+        } else {
+            query = "SELECT name, email, postal_code, city, username, country FROM users WHERE city LIKE ?";
+        }
+        const likePattern  = `%${like}%`;
+        connection.query(query, [likePattern], (err, result) => {
+            if (err) {
+                return res.status(500).json({ error: "Database error", details: err.message });
+            }
+            return res.json(result);
+        })
+    },
+
+    getcitys: (req, res) => {
+        const query = "SELECT DISTINCT city FROM users";
         connection.query(query, (err, result) => {
             if (err) {
                 return res.status(500).json({ error: "Database error", details: err.message });
@@ -109,6 +138,7 @@ const userControlles = {
             return res.json(result);
         })
     },
+    
 
     //Query to Get email and send verfication mail with specific token.
     forgetPassword: (req, res) => {
