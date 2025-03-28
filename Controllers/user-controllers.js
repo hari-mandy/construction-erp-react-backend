@@ -101,36 +101,56 @@ const userControlles = {
     },
 
     users: (req, res) => {
-        const page = parseInt(req.query.page) || 1; // Default to page 1
-        const limit = parseInt(req.query.limit) || 10; // Default 10 items per page
+        const page = parseInt(req.query.page) || 1;  
+        const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
-        
-        const countQuery = 'SELECT COUNT(*) AS total FROM users';
-        const dataQuery = 'SELECT * FROM users LIMIT ? OFFSET ?';
-
-        connection.query(countQuery, (err, countResult) => {
+        const searchTerm = req.query.search || ''; // Search term
+        const cityFilter = req.query.city || '';  // City filter
+    
+        // Build the WHERE clause based on search term and city filter
+        let whereClause = 'WHERE 1=1';  // Start with a condition that is always true
+        let queryParams = [];
+    
+        // If a search term is provided, add it to the WHERE clause
+        if (searchTerm) {
+            whereClause += ' AND (name LIKE ? OR email LIKE ?)';
+            queryParams.push(`%${searchTerm}%`, `%${searchTerm}%`);
+        }
+    
+        // If a city filter is provided, add it to the WHERE clause
+        if (cityFilter) {
+            whereClause += ' AND city LIKE ?';
+            queryParams.push(`%${cityFilter}%`);  // Add city filter to the query parameters
+        }
+    
+        // Count query: Now includes both search and city filter if provided
+        const countQuery = `SELECT COUNT(*) AS total FROM users ${whereClause}`;
+    
+        // Data query: Now includes both search and city filter if provided
+        const dataQuery = `SELECT * FROM users ${whereClause} LIMIT ? OFFSET ?`;
+    
+        // Add pagination parameters to the queryParams
+        queryParams.push(limit, offset);
+        connection.query(countQuery, queryParams, (err, countResult) => {  // Execute count query to get the total number of items 
             if (err) {
-              return res.status(500).json({ error: err.message });
+                return res.status(500).json({ error: err.message });
             }
-        
             const totalItems = countResult[0].total;
             const totalPages = Math.ceil(totalItems / limit);
-        
-            connection.query(dataQuery, [parseInt(limit), parseInt(offset)], (err, dataResult) => {
-              if (err) {
-                return res.status(500).json({ error: err.message });
-              }
-        
-              res.json({
-                totalItems,
-                totalPages,
-                offset,
-                currentPage: parseInt(page),
-                items: dataResult,
-              });
+            connection.query(dataQuery, queryParams, (err, dataResult) => {  // Execute data query to get the paginated users
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+                res.json({
+                    totalItems,
+                    totalPages,
+                    offset,
+                    currentPage: parseInt(page),
+                    items: dataResult,
+                });
             });
         });
-    },
+    },    
 
     getalluser: (req, res) => {
         const like = req.query.like;
