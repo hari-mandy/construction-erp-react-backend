@@ -13,5 +13,6 @@ router.get('/validtoken', userControllers.validToken);
 router.get('/getalluser', userControllers.getalluser);
 router.get('/getcitys', userControllers.getcitys);
 router.get('/getusercity', userControllers.getusercity);
+router.get('/users', userControllers.users);
 
 module.exports = router;

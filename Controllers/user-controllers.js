@@ -100,15 +100,51 @@ const userControlles = {
         });
     },
 
+    users: (req, res) => {
+        const page = parseInt(req.query.page) || 1; // Default to page 1
+        const limit = parseInt(req.query.limit) || 10; // Default 10 items per page
+        const offset = (page - 1) * limit;
+        
+        const countQuery = 'SELECT COUNT(*) AS total FROM users';
+        const dataQuery = 'SELECT * FROM users LIMIT ? OFFSET ?';
+
+        connection.query(countQuery, (err, countResult) => {
+            if (err) {
+              return res.status(500).json({ error: err.message });
+            }
+        
+            const totalItems = countResult[0].total;
+            const totalPages = Math.ceil(totalItems / limit);
+        
+            connection.query(dataQuery, [parseInt(limit), parseInt(offset)], (err, dataResult) => {
+              if (err) {
+                return res.status(500).json({ error: err.message });
+              }
+        
+              res.json({
+                totalItems,
+                totalPages,
+                offset,
+                currentPage: parseInt(page),
+                items: dataResult,
+              });
+            });
+        });
+    },
+
     getalluser: (req, res) => {
         const like = req.query.like;
+
         const query = "SELECT name, email, postal_code, city, username, country FROM users WHERE name LIKE ? OR email LIKE ?";
-        const likePattern = `%${like}%`; 
+        const likePattern = `%${like}%`;
         connection.query(query, [likePattern, likePattern], (err, result) => {
             if (err) {
                 return res.status(500).json({ error: "Database error", details: err.message });
             }
-            return res.json(result);
+            return res.json({
+                totalItems: result.length,
+                items: result,
+            });
         });
     },
 
