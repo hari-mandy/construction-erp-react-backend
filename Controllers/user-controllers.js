@@ -101,7 +101,7 @@ const userControlles = {
     },
 
     users: (req, res) => {
-        const page = parseInt(req.query.page) || 1;  
+        const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
         const searchTerm = req.query.search || ''; // Search term
@@ -186,15 +186,18 @@ const userControlles = {
     },
 
     getcitys: (req, res) => {
-        const query = "SELECT DISTINCT city FROM users";
-        connection.query(query, (err, result) => {
+        const search = req.query.search;        
+        const query = "SELECT DISTINCT city FROM users WHERE name LIKE ? OR email LIKE ?";
+        const likePattern = `%${search}%`; // Place % outside of string interpolation
+    
+        // Use the pattern directly in the query parameters
+        connection.query(query, [likePattern, likePattern], (err, result) => {
             if (err) {
                 return res.status(500).json({ error: "Database error", details: err.message });
             }
             return res.json(result);
-        })
-    },
-    
+        });
+    },    
 
     //Query to Get email and send verfication mail with specific token.
     forgetPassword: (req, res) => {
