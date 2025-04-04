@@ -150,7 +150,19 @@ const userControlles = {
                 });
             });
         });
-    },    
+    },
+
+    removeUser: (req, res) => {
+        const itemId = req.query.id;
+        const query = 'DELETE FROM users WHERE id = ?';
+        connection.query(query, [itemId], (err, result)=> {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: 'Error deleting item' });
+            }
+            res.json({ message: 'Item deleted successfully' });
+        })
+    },
 
     getalluser: (req, res) => {
         const like = req.query.like;

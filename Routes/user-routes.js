@@ -14,5 +14,6 @@ router.get('/getalluser', userControllers.getalluser);
 router.get('/getcitys', userControllers.getcitys);
 router.get('/getusercity', userControllers.getusercity);
 router.get('/users', userControllers.users);
+router.delete('/removeuser', userControllers.removeUser);
 
 module.exports = router;
