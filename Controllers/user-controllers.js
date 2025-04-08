@@ -84,12 +84,13 @@ const userControlles = {
 
     //Query to check the user existance in db.
     getUser:  (req, res) => {
-        const email = req.query.email;
-        if (!email) {
+        const pattern = req.query.email;
+        if (!pattern) {
             return res.status(400).json({ error: "Email is required" });
         }
-        const query = "SELECT * FROM users WHERE email = ?";
-        connection.query(query, [email], (err, result) => {
+        
+        const query = "SELECT * FROM users WHERE email = ? OR username = ?";
+        connection.query(query, [pattern, pattern], (err, result) => {
             if (err) {
                 return res.status(500).json({ error: "Database error", details: err.message });
             }
@@ -97,7 +98,7 @@ const userControlles = {
                 return res.status(404).json({ error: "User not found" });
             }
             return res.json(result);
-        });
+        });        
     },
 
     users: (req, res) => {
